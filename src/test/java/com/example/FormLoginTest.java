@@ -16,7 +16,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
