@@ -71,7 +71,7 @@ public class FormLoginTest {
                 .uri("/api/user/current")
                 .cookie("SESSION", sessionId)
                 .exchange()
-                .expectStatus().isEqualTo(403)
+                .expectStatus().is3xxRedirection();
         ;
 
     }
