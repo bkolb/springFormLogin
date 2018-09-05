@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -45,11 +46,12 @@ public class FormLoginTest {
 
     @Test
     public void returnOwnUser() throws Exception {
-        this.formLogin("user1", "user1");
+        String sessionId = this.formLogin("user1", "user1");
 
         this.rest
                 .get()
                 .uri("/api/user/current")
+                .cookie("SESSION", sessionId)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody(String.class)
@@ -59,12 +61,14 @@ public class FormLoginTest {
         this.rest
                 .get()
                 .uri("/logout")
+                .cookie("SESSION", sessionId)
                 .exchange()
                 .expectStatus().is2xxSuccessful();
 
         this.rest
                 .get()
                 .uri("/api/user/current")
+                .cookie("SESSION", sessionId)
                 .exchange()
                 .expectStatus().isEqualTo(403)
         ;
@@ -72,21 +76,25 @@ public class FormLoginTest {
     }
 
 
-    private void formLogin(String user, String password) {
+    private String formLogin(String user, String password) {
         this.rest
                 .get()
                 .uri("/login")
                 .exchange()
                 .expectStatus().is2xxSuccessful();
-        this.rest
+        FluxExchangeResult<String> result = this.rest
                 .mutateWith(csrf())
                 .post()
                 .uri("/login")
-                .body(BodyInserters.fromFormData(new FormData(user, password).toParamList()))
+                .body(BodyInserters
+                        .fromFormData(new FormData(user, password).toParamList()))
                 .accept(MediaType.TEXT_HTML)
                 .exchange()
                 .expectStatus().is3xxRedirection()
-                .expectHeader().valueEquals("Location", "/");
+                .expectHeader().valueEquals("Location", "/")
+                .returnResult(String.class);
+
+        return result.getResponseCookies().getFirst("SESSION").getValue();
     }
 
     public static final class FormData {
