@@ -1,13 +1,11 @@
 package com.example;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -15,33 +13,18 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import java.time.Duration;
 import java.util.Collections;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 
+@SpringBootTest
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = Application.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient
 public class FormLoginTest {
 
     @Autowired
-    ApplicationContext context;
-
     private WebTestClient rest;
-
-    @Before
-    public void setup() {
-        this.rest = WebTestClient
-                .bindToApplicationContext(this.context)
-                .apply(springSecurity())
-                .configureClient()
-                .responseTimeout(Duration.ofDays(1))
-                .build();
-    }
-
 
     @Test
     public void returnOwnUser() throws Exception {
