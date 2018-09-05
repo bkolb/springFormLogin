@@ -59,11 +59,12 @@ public class FormLoginTest {
         ;
 
         this.rest
-                .get()
+                .mutateWith(csrf())
+                .post()
                 .uri("/logout")
                 .cookie("SESSION", sessionId)
                 .exchange()
-                .expectStatus().is2xxSuccessful();
+                .expectStatus().is3xxRedirection();
 
         this.rest
                 .get()
